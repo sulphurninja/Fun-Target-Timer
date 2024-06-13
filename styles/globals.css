@@ -1,0 +1,86 @@
+body{
+    background-image: url('/background.png');
+    background-size: fill;
+    background-color: black;
+    background-repeat: no-repeat;
+
+   
+   
+    background-position: 2%;
+}
+
+
+body{
+  background-image: url('/background.png');
+  background-size: fill;
+  background-color: black;
+  background-repeat: no-repeat;
+
+ 
+  background-position: 2%;
+}
+* {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-perspective: 1000;
+  perspective: 1000;
+}
+
+@keyframes imageCarouselAnimation {
+    0% {
+        opacity: 1;
+        transform: translateX(-100%);
+      }
+    
+      25% {
+        opacity: 1;
+        transform: translateX(-120%);
+      }
+    
+      50% {
+        opacity: 1;
+        transform: translateX(-100%);
+      }
+    
+      75% {
+        opacity: 1;
+        transform: translateX(25%);
+      }
+      80% {
+        opacity: 1;
+        transform: translateX(35%);
+      }
+      90% {
+        opacity: 0;
+        transform: translateX(90%);
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(100%);
+      }
+    }
+    
+  
+  .image-carousel-item {
+    position: absolute;
+   
+    opacity: 0;
+    animation: none; /* Initially, no animation */
+  
+    &.running {
+      animation: imageCarouselAnimation 5s linear infinite; /* Adjust the duration as needed */
+    }
+  }
+  
+  .image-carousel-item.active {
+    opacity: 1;
+  }
+  
+  
+  
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
