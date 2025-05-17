@@ -1,34 +1,44 @@
 import mongoose from 'mongoose'
 
-const connectDB = () => {
-  // Check existing connection
-  if (mongoose.connections[0].readyState) {
-    console.log('Already connected.')
-    return Promise.resolve();
-  }
+const connectDB = async () => {
+  try {
+    // Check existing connection
+    if (mongoose.connections[0].readyState) {
+      console.log('Already connected to MongoDB')
+      return;
+    }
 
-  // Set mongoose options
-  mongoose.set("strictQuery", false);
+    // Set mongoose options
+    mongoose.set("strictQuery", false);
 
-  // Return the connection promise so we can await it
-  return new Promise((resolve, reject) => {
-    mongoose.connect(process.env.MONGODB_URL, {
+    // Add connection URL validation
+    if (!process.env.MONGODB_URL) {
+      throw new Error('MONGODB_URL environment variable is not defined')
+    }
+
+    console.log('Attempting MongoDB connection...')
+
+    // Connect with better error handling
+    const conn = await mongoose.connect(process.env.MONGODB_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      // Add these critical timeout options
-      serverSelectionTimeoutMS: 15000, // Timeout after 15s instead of default 30s
-      socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
-      connectTimeoutMS: 15000, // Give up initial connection after 15s
-    })
-    .then(connection => {
-      console.log("Connected to MongoDB successfully");
-      resolve(connection);
-    })
-    .catch(err => {
-      console.error("MongoDB connection error:", err);
-      reject(err);
+      serverSelectionTimeoutMS: 60000, // Significantly increase timeout for cloud environments
+      socketTimeoutMS: 90000,
+      connectTimeoutMS: 60000,
+      maxPoolSize: 10,
+      minPoolSize: 2, // Keep some connections open
+      maxIdleTimeMS: 30000, // Close idle connections after 30 seconds
     });
-  });
+
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    return conn;
+  } catch (error) {
+    console.error(`MongoDB Connection Error: ${error.message}`);
+    if (error.name === 'MongoServerSelectionError') {
+      console.error('This likely indicates network connectivity issues or incorrect connection string');
+    }
+    throw error;
+  }
 }
 
 export default connectDB;

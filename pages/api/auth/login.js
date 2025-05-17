@@ -4,10 +4,24 @@ import bcrypt from 'bcrypt'
 import { createAccessToken, createRefreshToken } from '../../../utils/generateToken'
 
 export default async (req, res) => {
+    console.log("Login API route started");
     try {
-        // Properly await the database connection
-        await connectDB();
+        // Log environment info (but sanitize any sensitive data)
+        console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
+        console.log(`MongoDB URL exists: ${!!process.env.MONGODB_URL}`);
 
+        // Log attempt to connect
+        console.log("Attempting database connection...");
+        try {
+            await connectDB();
+            console.log("Database connection successful");
+        } catch (dbError) {
+            console.error("Database connection failed:", dbError);
+            return res.status(503).json({
+                err: "Database connection failed. Please try again later.",
+                details: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+            });
+        }
         switch (req.method) {
             case "POST":
                 await login(req, res);
